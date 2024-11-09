@@ -17,12 +17,19 @@ pipeline {
             }
         }
 
+       stages {
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image from the Dockerfile
-                sh 'docker build -t my-app-image:latest .'
+                script {
+                    // Ensure docker is available
+                    sh 'docker --version'
+                    // Your Docker build command
+                    sh 'docker build -t my-app-image:latest .'
+                }
             }
         }
+    }
+
 
         stage('Push Docker Image to Docker Hub') {
             steps {
