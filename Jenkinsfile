@@ -11,9 +11,14 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/sibilucky/node.git'
+                checkout([$class: 'GitSCM', 
+                          branches: [[name: '*/main']], 
+                          userRemoteConfigs: [[url: 'https://github.com/sibilucky/node.git', credentialsId: 'my-git-credentials']]])
             }
         }
+    }
+
+
 
         stage('Build Docker Image') {
             steps {
