@@ -16,12 +16,11 @@ pipeline {
                           userRemoteConfigs: [[url: 'https://github.com/sibilucky/node.git', credentialsId: 'my-git-credentials']]])
             }
         }
-    }
 
         stage('Build Docker Image') {
             steps {
                 // Build the Docker image from the Dockerfile
-                sh 'docker build -t my-app-image .'
+                sh 'docker build -t my-app-image:latest .'
             }
         }
 
@@ -41,10 +40,10 @@ pipeline {
             steps {
                 // SSH into the server and deploy the Docker container
                 sh """
-                ssh user@your-server-ip 'docker pull my-app-image:latest && \
-                docker stop my-app-container || true && \
-                docker rm my-app-container || true && \
-                docker run -d -p 80:3000 --name my-app-container my-app-image:latest'
+                ssh user@${SERVER_IP} 'docker pull  my-app-image:latest&& \
+                docker stop my-app-image container || true && \
+                docker rm my-app-image container || true && \
+                docker run -d -p 80:3000 --name my-app-image container my-app-image:latest'
                 """
             }
         }
@@ -64,4 +63,4 @@ pipeline {
             echo "Deployment failed!"
         }
     }
-
+}
