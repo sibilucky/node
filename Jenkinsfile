@@ -18,51 +18,41 @@ pipeline {
         }
     }
 
-
-
         stage('Build Docker Image') {
             steps {
-                script {
-                    sh "docker build -t my-app-image:latest ."
-                }
+                // Build the Docker image from the Dockerfile
+                sh 'docker build -t my-app-image .'
             }
         }
 
         stage('Push Docker Image to Docker Hub') {
-            when {
-                branch 'main'
-            }
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh """
-                        docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                        docker tag my-app-image:latest sibisam2301/my-app-image:latest
-                       docker push sibisam2301/my-app-image:latest                   
-                        """
-                    }
+                // Push the Docker image to Docker Hub (if applicable)
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                    sh """
+                    docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
+                    docker push my-app-image:latest
+                    """
                 }
             }
         }
 
         stage('Deploy to Server') {
             steps {
-                script {
-                    sh """
-                    ssh user@${SERVER_IP} '
-                        docker pull sibisam2301/my-app-image:latest && \
-                        docker stop my-app-image-container || true && \
-                        docker rm my-app-mage-container || true && \
-                        docker run -d -p 80:3000 --name my-app-image-container sibisam2301/my-app-mage:latest
-                    '
-                    """
-                }
+                // SSH into the server and deploy the Docker container
+                sh """
+                ssh user@your-server-ip 'docker pull my-app-image:latest && \
+                docker stop my-app-container || true && \
+                docker rm my-app-container || true && \
+                docker run -d -p 80:3000 --name my-app-container my-app-image:latest'
+                """
             }
         }
     }
 
     post {
         always {
+            // Clean up Docker images and containers if necessary
             sh 'docker system prune -f'
         }
 
@@ -74,4 +64,4 @@ pipeline {
             echo "Deployment failed!"
         }
     }
-
+}
