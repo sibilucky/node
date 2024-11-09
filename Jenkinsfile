@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "my-app-image"
         DOCKER_TAG = "latest"
-        REGISTRY_URL = "dockerhub-username"  // Docker registry URL (optional)
+        REGISTRY_URL = "sibisam2301"  // Docker registry URL (optional)
         SERVER_IP = "your-server-ip"
     }
 
@@ -18,7 +18,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
+                    sh "docker build -t my-app-image:latest ."
                 }
             }
         }
@@ -32,8 +32,8 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh """
                         docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${REGISTRY_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker push ${REGISTRY_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker tag my-app-image:latest sibisam2301/my-app-image:latest
+                       docker push sibisam2301/my-app-image:latest                   
                         """
                     }
                 }
@@ -45,10 +45,10 @@ pipeline {
                 script {
                     sh """
                     ssh user@${SERVER_IP} '
-                        docker pull ${REGISTRY_URL}/${DOCKER_IMAGE}:${DOCKER_TAG} && \
-                        docker stop my-app-container || true && \
-                        docker rm my-app-container || true && \
-                        docker run -d -p 80:3000 --name my-app-container ${REGISTRY_URL}/${DOCKER_IMAGE}:${DOCKER_TAG}
+                        docker pull sibisam2301/my-app-image:latest && \
+                        docker stop my-app-image-container || true && \
+                        docker rm my-app-mage-container || true && \
+                        docker run -d -p 80:3000 --name my-app-image-container sibisam2301/my-app-mage:latest
                     '
                     """
                 }
